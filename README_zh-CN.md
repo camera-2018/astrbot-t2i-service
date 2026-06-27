@@ -12,6 +12,9 @@
 - `IMAGE_LIFETIME_HOURS`: 图片生命时间（小时），默认 24 小时。超过此时间的图片文件将被自动清理
 - `RATE_LIMIT_MAX_REQUESTS`: 限流窗口内最大请求数，默认 0 表示关闭
 - `RATE_LIMIT_WINDOW_SECONDS`: 限流窗口秒数，默认 0 表示关闭
+- `DEFAULT_IMAGE_TYPE`: 默认截图类型，支持 `png` / `jpeg`，默认 `png`
+- `DEFAULT_IMAGE_QUALITY`: 默认 JPEG 质量，范围 `0-100`，仅最终输出为 `jpeg` 时生效
+- `DEFAULT_DEVICE_SCALE_FACTOR_LEVEL`: 默认设备像素比等级，支持 `normal` / `high` / `ultra`，默认 `normal`
 
 ## Docker
 
@@ -26,6 +29,9 @@ docker build -t astrbot-t2i-service:local .
 ```bash
 docker run --rm -p 8999:8999 \
   -e IMAGE_LIFETIME_HOURS=24 \
+  -e DEFAULT_IMAGE_TYPE=jpeg \
+  -e DEFAULT_IMAGE_QUALITY=90 \
+  -e DEFAULT_DEVICE_SCALE_FACTOR_LEVEL=high \
   -v astrbot-t2i-data:/app/data \
   astrbot-t2i-service:local
 ```

@@ -26,6 +26,8 @@ rate_limit_lock = asyncio.Lock()
 rate_limit_timestamps: deque[float] = deque()
 rate_limit_max_requests = int(os.getenv("RATE_LIMIT_MAX_REQUESTS", "0"))
 rate_limit_window_seconds = int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", "0"))
+valid_image_types = {"png", "jpeg"}
+valid_scale_factor_levels = {"normal", "high", "ultra"}
 
 
 @app.get("/health")
@@ -40,6 +42,50 @@ class GenerateRequest(BaseModel):
     tmpldata: dict | None = None
     options: ScreenshotOptions | None = None
     json: bool = False
+
+
+def get_env_choice(name: str, default: str, choices: set[str]) -> str:
+    value = os.getenv(name, default).strip().lower()
+    if value in choices:
+        return value
+    logger.warning(f"Invalid {name} value: {value}, using default {default}")
+    return default
+
+
+def get_env_quality() -> int | None:
+    value = os.getenv("DEFAULT_IMAGE_QUALITY")
+    if value is None or value.strip() == "":
+        return None
+    try:
+        quality = int(value)
+    except ValueError:
+        logger.warning(f"Invalid DEFAULT_IMAGE_QUALITY value: {value}, ignoring")
+        return None
+    if 0 <= quality <= 100:
+        return quality
+    logger.warning(f"Invalid DEFAULT_IMAGE_QUALITY value: {value}, ignoring")
+    return None
+
+
+def get_default_screenshot_options() -> ScreenshotOptions:
+    return ScreenshotOptions(
+        timeout=None,
+        type=get_env_choice("DEFAULT_IMAGE_TYPE", "png", valid_image_types),
+        quality=get_env_quality(),
+        omit_background=None,
+        full_page=True,
+        clip=None,
+        animations=None,
+        caret=None,
+        scale="device",
+        viewport_width=None,
+        viewport_height=None,
+        device_scale_factor_level=get_env_choice(
+            "DEFAULT_DEVICE_SCALE_FACTOR_LEVEL",
+            "normal",
+            valid_scale_factor_levels,
+        ),
+    )
 
 
 # 启动时创建清理任务
@@ -138,24 +184,11 @@ async def text2img(request: GenerateRequest):
             status_code=400,
             content={"code": 1, "message": "html or tmpl not found", "data": {}},
         )
-    options = (
-        request.options
-        if request.options
-        else ScreenshotOptions(
-            timeout=None,
-            type="png",
-            quality=None,
-            omit_background=None,
-            full_page=True,
-            clip=None,
-            animations=None,
-            caret=None,
-            scale="device",
-            viewport_width=None,
-            viewport_height=None,
-            device_scale_factor_level=None,
+    options = get_default_screenshot_options()
+    if request.options:
+        options = options.model_copy(
+            update=request.options.model_dump(exclude_none=True)
         )
-    )
 
     pic = await render.html2pic(abs_path, options)
 

@@ -12,6 +12,9 @@ A simple web service that converts HTML/templates to images, with image lifecycl
 - `IMAGE_LIFETIME_HOURS`: Image lifetime in hours, default is 24 hours. Images older than this will be automatically cleaned up
 - `RATE_LIMIT_MAX_REQUESTS`: Maximum requests per rate-limit window, default 0 disables rate limiting
 - `RATE_LIMIT_WINDOW_SECONDS`: Rate-limit window in seconds, default 0 disables rate limiting
+- `DEFAULT_IMAGE_TYPE`: Default screenshot type, supports `png` / `jpeg`, default `png`
+- `DEFAULT_IMAGE_QUALITY`: Default JPEG quality from `0-100`, only applies when the final output type is `jpeg`
+- `DEFAULT_DEVICE_SCALE_FACTOR_LEVEL`: Default device pixel ratio level, supports `normal` / `high` / `ultra`, default `normal`
 
 ## Docker
 
@@ -26,6 +29,9 @@ Run the container:
 ```bash
 docker run --rm -p 8999:8999 \
   -e IMAGE_LIFETIME_HOURS=24 \
+  -e DEFAULT_IMAGE_TYPE=jpeg \
+  -e DEFAULT_IMAGE_QUALITY=90 \
+  -e DEFAULT_DEVICE_SCALE_FACTOR_LEVEL=high \
   -v astrbot-t2i-data:/app/data \
   astrbot-t2i-service:local
 ```
