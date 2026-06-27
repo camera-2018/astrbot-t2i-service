@@ -10,8 +10,31 @@
 
 - `PORT`: 服务端口，默认 8999
 - `IMAGE_LIFETIME_HOURS`: 图片生命时间（小时），默认 24 小时。超过此时间的图片文件将被自动清理
+- `RATE_LIMIT_MAX_REQUESTS`: 限流窗口内最大请求数，默认 0 表示关闭
+- `RATE_LIMIT_WINDOW_SECONDS`: 限流窗口秒数，默认 0 表示关闭
+
+## Docker
+
+构建镜像：
+
+```bash
+docker build -t astrbot-t2i-service:local .
+```
+
+运行容器：
+
+```bash
+docker run --rm -p 8999:8999 \
+  -e IMAGE_LIFETIME_HOURS=24 \
+  -v astrbot-t2i-data:/app/data \
+  astrbot-t2i-service:local
+```
 
 ## API 接口
+
+### GET /health
+
+健康检查接口。
 
 ### POST /text2img/generate
 

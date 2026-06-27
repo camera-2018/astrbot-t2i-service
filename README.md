@@ -10,8 +10,31 @@ A simple web service that converts HTML/templates to images, with image lifecycl
 
 - `PORT`: Service port, default is 8999
 - `IMAGE_LIFETIME_HOURS`: Image lifetime in hours, default is 24 hours. Images older than this will be automatically cleaned up
+- `RATE_LIMIT_MAX_REQUESTS`: Maximum requests per rate-limit window, default 0 disables rate limiting
+- `RATE_LIMIT_WINDOW_SECONDS`: Rate-limit window in seconds, default 0 disables rate limiting
+
+## Docker
+
+Build the image:
+
+```bash
+docker build -t astrbot-t2i-service:local .
+```
+
+Run the container:
+
+```bash
+docker run --rm -p 8999:8999 \
+  -e IMAGE_LIFETIME_HOURS=24 \
+  -v astrbot-t2i-data:/app/data \
+  astrbot-t2i-service:local
+```
 
 ## API Endpoints
+
+### GET /health
+
+Health check endpoint.
 
 ### POST /text2img/generate
 

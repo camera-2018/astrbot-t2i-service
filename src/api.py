@@ -28,6 +28,11 @@ rate_limit_max_requests = int(os.getenv("RATE_LIMIT_MAX_REQUESTS", "0"))
 rate_limit_window_seconds = int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", "0"))
 
 
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+
 class GenerateRequest(BaseModel):
     html: str | None = None
     tmpl: str | None = None
